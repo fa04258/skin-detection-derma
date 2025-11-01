@@ -1,0 +1,7 @@
+{
+  "name": "Derm-AI: Skin Health Assistant",
+  "description": "An AI-powered skin health assistant that allows users to upload or capture images of their skin. The app analyzes the image to detect potential skin issues and suggests home remedies, with a clear disclaimer that it's not a substitute for professional medical advice.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
