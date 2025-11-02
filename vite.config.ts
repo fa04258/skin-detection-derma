@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        outDir: 'build'   // ✅ Output folder changed
+        outDir: 'dist'   // ✅ Output folder changed
       }
     };
 });
