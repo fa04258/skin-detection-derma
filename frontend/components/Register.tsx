@@ -1,44 +1,57 @@
+// frontend/components/Register.tsx
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth'; // Assuming useAuth is in hooks directory
 
 interface RegisterComponentProps {
   onToggleAuthMode: () => void;
 }
 
 const RegisterComponent: React.FC<RegisterComponentProps> = ({ onToggleAuthMode }) => {
+  // Added username state
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const { register } = useAuth();
+  const { register } = useAuth(); // Destructure register from useAuth
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { // Make handleSubmit async
     e.preventDefault();
     setError('');
     setSuccessMessage('');
+    setIsSubmitting(true); // Set submitting to true
 
-    if (password !== confirmPassword) {
-      setError("Passwords don't match!");
+    if (!username || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      setIsSubmitting(false);
       return;
     }
 
-    if (email && password) {
-      setIsSubmitting(true);
-      const success = register(email, password);
+    if (password !== confirmPassword) {
+      setError("Passwords don't match!");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const success = await register(email, password, username); // Await the async register call, pass username
       
       if (success) {
         setSuccessMessage('Registration successful! Redirecting to login page...');
         setTimeout(() => {
-          onToggleAuthMode();
+          onToggleAuthMode(); // Switch to login mode
+          setIsSubmitting(false); // Ensure submitting is reset even after redirect
         }, 3000); // 3-second delay
       } else {
-        setError('An account with this email already exists.');
-        setIsSubmitting(false);
+        setError('Registration failed. An account with this email or username might already exist.'); // Generic error
+        setIsSubmitting(false); // Reset submitting
       }
-    } else {
-      setError("Please fill in all fields.");
+    } catch (err) {
+      setError("An unexpected error occurred during registration.");
+      console.error("Register component error:", err);
+      setIsSubmitting(false); // Reset submitting
     }
   };
 
@@ -48,6 +61,27 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onToggleAuthMode 
       <form className="space-y-6" onSubmit={handleSubmit}>
         {error && <p className="text-sm text-center text-red-500 bg-red-100 dark:bg-red-900/30 p-2 rounded-md">{error}</p>}
         {successMessage && <p className="text-sm text-center text-green-500 bg-green-100 dark:bg-green-900/30 p-2 rounded-md">{successMessage}</p>}
+        
+        <div>
+          <label htmlFor="username-register" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Username
+          </label>
+          <div className="mt-1">
+            <input
+              id="username-register"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={isSubmitting}
+              className="w-full px-3 py-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50"
+              placeholder="Your unique username"
+            />
+          </div>
+        </div>
+
         <div>
           <label htmlFor="email-register" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
             Email address

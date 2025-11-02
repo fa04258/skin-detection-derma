@@ -1,6 +1,6 @@
-
+// frontend/components/Login.tsx
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth'; // Assuming useAuth is in hooks directory
 
 interface LoginComponentProps {
   onToggleAuthMode: () => void;
@@ -10,20 +10,33 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onToggleAuthMode }) => 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add submitting state
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { // Make handleSubmit async
     e.preventDefault();
     setError('');
+    setIsSubmitting(true); // Set submitting to true
 
-    if (email && password) {
-      const success = login(email, password);
+    if (!email || !password) { // Use !email || !password for better check
+      setError("Please fill in both fields.");
+      setIsSubmitting(false); // Reset submitting
+      return;
+    }
+
+    try {
+      const success = await login(email, password); // Await the async login call
       if (!success) {
-        setError("Your credentials are not matched with signup data.");
+        setError("Login failed. Please check your credentials."); // More generic error message
       }
       // On successful login, the user state is set in context, and App.tsx will handle the redirect.
-    } else {
-      setError("Please fill in both fields.");
+    } catch (err) {
+      // This catch block might not be strictly necessary if login handles its own errors
+      // but good practice for any unhandled rejections.
+      setError("An unexpected error occurred during login.");
+      console.error("Login component error:", err);
+    } finally {
+      setIsSubmitting(false); // Always reset submitting state
     }
   };
 
@@ -45,7 +58,8 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onToggleAuthMode }) => 
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+              disabled={isSubmitting} // Disable while submitting
+              className="w-full px-3 py-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50"
               placeholder="you@example.com"
             />
           </div>
@@ -63,7 +77,8 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onToggleAuthMode }) => 
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+              disabled={isSubmitting} // Disable while submitting
+              className="w-full px-3 py-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50"
               placeholder="••••••••"
             />
           </div>
@@ -71,9 +86,10 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onToggleAuthMode }) => 
         <div>
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+            disabled={isSubmitting} // Disable button while submitting
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign in
+            {isSubmitting ? 'Signing in...' : 'Sign in'} {/* Show loading text */}
           </button>
         </div>
       </form>

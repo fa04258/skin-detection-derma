@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-// Fix: Corrected the import path for useAuth from hooks/useAuth.ts
-import { AuthProvider } from './context/AuthContext';
-import { useAuth } from './hooks/useAuth';
-import LoginComponent from './components/Login';
-import RegisterComponent from './components/Register';
-import SkinDetector from './components/SkinDetector';
-import Header from './components/Header';
+// Fix: Corrected the import path for AuthProvider to include the 'frontend' directory.
+import { AuthProvider } from './frontend/context/AuthContext'; // THIS LINE IS MODIFIED
+import { useAuth } from './frontend/hooks/useAuth'; // Assuming useAuth is also in frontend/hooks
+import LoginComponent from './frontend/components/Login'; // Assuming components are also in frontend/components
+import RegisterComponent from './frontend/components/Register'; // Assuming components are also in frontend/components
+import SkinDetector from './frontend/components/SkinDetector'; // Assuming components are also in frontend/components
+import Header from './frontend/components/Header'; // Assuming components are also in frontend/components
+
 
 const App: React.FC = () => {
   return (
