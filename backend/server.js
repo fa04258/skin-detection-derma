@@ -11,7 +11,7 @@ const app = express();
 
 // Environment variables
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/derm-ai-db';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://fa04258:Ramya%40123@cluster0.zxynhaq.mongodb.net/loginDB?retryWrites=true&w=majority';
 
 // ---------- MIDDLEWARE ----------
 app.use(cors()); // Enable CORS for all origins
