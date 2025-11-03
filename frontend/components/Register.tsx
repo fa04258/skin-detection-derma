@@ -1,13 +1,11 @@
-// frontend/components/Register.tsx
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/useAuth'; // Assuming useAuth is in hooks directory
+import { useAuth } from '../hooks/useAuth';
 
 interface RegisterComponentProps {
   onToggleAuthMode: () => void;
 }
 
 const RegisterComponent: React.FC<RegisterComponentProps> = ({ onToggleAuthMode }) => {
-  // Added username state
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,13 +13,13 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onToggleAuthMode 
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const { register } = useAuth(); // Destructure register from useAuth
+  const { register } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => { // Make handleSubmit async
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
-    setIsSubmitting(true); // Set submitting to true
+    setIsSubmitting(true);
 
     if (!username || !email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
@@ -36,22 +34,20 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onToggleAuthMode 
     }
 
     try {
-      const success = await register(email, password, username); // Await the async register call, pass username
+      // CHANGE 1: 'register' no longer returns a boolean, it resolves on success
+      await register(email, password, username); 
       
-      if (success) {
-        setSuccessMessage('Registration successful! Redirecting to login page...');
-        setTimeout(() => {
-          onToggleAuthMode(); // Switch to login mode
-          setIsSubmitting(false); // Ensure submitting is reset even after redirect
-        }, 3000); // 3-second delay
-      } else {
-        setError('Registration failed. An account with this email or username might already exist.'); // Generic error
-        setIsSubmitting(false); // Reset submitting
-      }
-    } catch (err) {
-      setError("An unexpected error occurred during registration.");
+      setSuccessMessage('Registration successful! Redirecting to login page...');
+      setTimeout(() => {
+        onToggleAuthMode();
+        setIsSubmitting(false);
+      }, 3000);
+      
+    } catch (err: any) { // CHANGE 2: Catch the thrown error
+      // CHANGE 3: Display the specific error message from the caught error
+      setError(err.message || "An unexpected error occurred during registration."); 
       console.error("Register component error:", err);
-      setIsSubmitting(false); // Reset submitting
+      setIsSubmitting(false);
     }
   };
 

@@ -7,112 +7,105 @@ import axios from 'axios';
 const API_URL = 'http://localhost:5000/api';
 
 // Define the shape of the User object returned by your backend
-export interface User { // Export this interface as it might be used elsewhere
+export interface User {
   id: string;
   username: string;
   email: string;
 }
 
 // Define the shape of the AuthContext's value
-export interface AuthContextType { // Export this interface too
+export interface AuthContextType {
   token: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  loading: boolean; // Indicates if an authentication operation is in progress
+  loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, username: string) => Promise<boolean>;
+  // CHANGE 1: Register no longer returns a boolean, it resolves on success or throws an error
+  register: (email: string, password: string, username: string) => Promise<void>; 
   logout: () => void;
 }
 
 // Create the AuthContext
-export const AuthContext = createContext<AuthContextType | undefined>(undefined); // Export AuthContext
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // AuthProvider component that manages the authentication state
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
-  const [loading, setLoading] = useState<boolean>(true); // Initial loading state for auth check
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Effect to re-authenticate and fetch user details on initial load or token change
   useEffect(() => {
     const initializeAuth = async () => {
       if (token) {
         try {
-          // Make a request to the protected profile endpoint to validate token
-          // and fetch the complete user object from the backend.
           const response = await axios.get(`${API_URL}/users/profile`, {
             headers: {
-              Authorization: `Bearer ${token}`, // Send the JWT with the request
+              Authorization: `Bearer ${token}`,
             },
           });
-          setUser(response.data); // Set the full user object from the backend
+          setUser(response.data);
           setIsAuthenticated(true);
         } catch (error) {
           console.error('Failed to fetch user profile with existing token:', error);
-          // If the token is invalid or expired, clear it and reset auth state
           localStorage.removeItem('token');
           setToken(null);
           setUser(null);
           setIsAuthenticated(false);
         }
       }
-      setLoading(false); // Authentication initialization is complete
+      setLoading(false);
     };
     initializeAuth();
-  }, [token]); // Re-run this effect if the token changes
+  }, [token]);
 
-  // Handles user login
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
     try {
       const response = await axios.post(`${API_URL}/users/login`, { email, password });
-      const { token: newToken, user: userData } = response.data; // Backend sends new token and user object
+      const { token: newToken, user: userData } = response.data;
 
-      localStorage.setItem('token', newToken); // Store the new token
+      localStorage.setItem('token', newToken);
       setToken(newToken);
-      setUser(userData); // Set the full user object in context
+      setUser(userData);
       setIsAuthenticated(true);
-      return true; // Login successful
+      return true;
     } catch (err: any) {
-      console.error('Login error:', err.response?.data || err.message);
-      // You can add more specific error handling here if needed
-      return false; // Login failed
+      console.error('Login error:', err.response?.data?.msg || err.message);
+      // CHANGE 2: Throw specific login error message
+      throw new Error(err.response?.data?.msg || 'Login failed due to an unexpected error.');
     } finally {
-      setLoading(false); // Always reset loading state
+      setLoading(false);
     }
   }, []);
 
   // Handles user registration
-  const register = useCallback(async (email: string, password: string, username: string): Promise<boolean> => {
+  // CHANGE 3: Update return type to Promise<void>
+  const register = useCallback(async (email: string, password: string, username: string): Promise<void> => {
     setLoading(true);
     try {
       const response = await axios.post(`${API_URL}/users/register`, { username, email, password });
-      // For registration, we typically just get a success message and token (optional auto-login)
-      // If your backend auto-logs in after registration, you'd use response.data.token and response.data.user here
-      // const { token: newToken, user: userData } = response.data;
-
-      // In this example, we're not auto-logging in after register, just returning success.
-      // The frontend RegisterComponent will then redirect to Login.
-      return true; // Registration successful
+      // If registration is successful, do nothing (resolve the promise)
+      // The RegisterComponent will handle showing a success message and redirecting.
+      
+      // CHANGE 4: No longer return true, just let the promise resolve
+      return; 
     } catch (err: any) {
       console.error('Registration error:', err.response?.data?.msg || err.message);
-      // You can add more specific error handling here
-      return false; // Registration failed
+      // CHANGE 5: Throw the specific error message from the backend!
+      throw new Error(err.response?.data?.msg || 'Registration failed due to an unexpected error.'); 
     } finally {
-      setLoading(false); // Always reset loading state
+      setLoading(false);
     }
   }, []);
 
-  // Handles user logout
   const logout = useCallback(() => {
-    localStorage.removeItem('token'); // Remove token from local storage
+    localStorage.removeItem('token');
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
   }, []);
 
-  // The value provided to components wrapped by AuthProvider
   const value = {
     token,
     user,
