@@ -1,55 +1,43 @@
 // backend/server.js
 
-require('dotenv').config(); // Load environment variables from .env
+require("dotenv").config(); // Load environment variables
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const userRoutes = require('./routes/userRoutes'); // Import user routes
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+
+const userRoutes = require("./routes/userRoutes"); // Import routes
 
 const app = express();
 
-// Environment variables
-const PORT = process.env.PORT || 5000;
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// --- IMPORTANT UPDATE FOR CLARITY ---
-// Prefer environment variable (from .env or Render) first.
-// If process.env.MONGODB_URI is not set, it will use the hardcoded Atlas URI as a LOCAL FALLBACK.
-// For production deployments on Render, ensure MONGODB_URI is set in Render's environment variables.
-const MONGODB_URI = process.env.MONGODB_URI || '';
-
-// ---------- MIDDLEWARE ----------
-app.use(cors()); // Enable CORS for all origins
-app.use(express.json()); // Parse JSON bodies
-
-// ---------- DATABASE CONNECTION ----------
+// Connect MongoDB
 mongoose
-  .connect(MONGODB_URI, {
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
-    // Optional: Add these for better connection management and debugging
-    serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-    socketTimeoutMS: 45000,      // Close sockets after 45 seconds of inactivity
+    useUnifiedTopology: true
   })
   .then(() => {
-    // Log the actual database connected to!
-    console.log(`✅ MongoDB connected successfully to: ${mongoose.connection.host}/${mongoose.connection.name}`);
+    console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
   })
   .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-    console.error('Make sure your MONGODB_URI is correct and accessible (check .env and Atlas settings).');
-    process.exit(1); // Stop app if DB fails to connect
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
   });
 
-// ---------- ROUTES ----------
-app.get('/', (req, res) => {
-  res.send('🩺 DERM-AI Backend API is running...');
+// Routes
+app.get("/", (req, res) => {
+  res.send("🩺 DERM-AI Backend API Running...");
 });
 
-// User routes
-app.use('/api/users', userRoutes);
+app.use("/api/users", userRoutes);
 
-// ---------- START SERVER ----------
+// Server start
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

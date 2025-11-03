@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 // Fix: Corrected the import path for AuthProvider to include the 'frontend' directory.
 import { AuthProvider } from './frontend/context/AuthContext'; // THIS LINE IS MODIFIED
