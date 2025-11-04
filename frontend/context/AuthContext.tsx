@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 import axios from 'axios';
 
 // Define your API base URL from Vite env
-const API_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || 'https://skin-backend2.onrender.com'}/api`;
 
 // Define the shape of the User object returned by your backend
 export interface User {

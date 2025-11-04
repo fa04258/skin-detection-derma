@@ -1,7 +1,7 @@
 // frontend/services/api.ts
 
 // Backend URL (Render deployed backend)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://skin-backend2.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 // Helper function for POST requests
 const postRequest = async (endpoint: string, data: any) => {
