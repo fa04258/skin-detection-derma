@@ -1,5 +1,7 @@
 // frontend/services/api.ts
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://skin-backend2.onrender.com';
+
+// Backend URL (Render deployed backend)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://skin-backend2.onrender.com";
 
 // Helper function for POST requests
 const postRequest = async (endpoint: string, data: any) => {
@@ -8,6 +10,7 @@ const postRequest = async (endpoint: string, data: any) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
+      credentials: "include" // ✅ Important if backend uses cookies / JWT cookies
     });
 
     if (!response.ok) {
@@ -17,19 +20,19 @@ const postRequest = async (endpoint: string, data: any) => {
 
     return await response.json();
   } catch (error: any) {
-    console.error('API Error:', error.message);
+    console.error("API Error:", error.message);
     throw error;
   }
 };
 
-// ---------- User APIs ----------
+// ----------- User APIs -----------
 
 // Register User
 export const registerUser = (username: string, email: string, password: string) => {
-  return postRequest('/api/users/register', { username, email, password });
+  return postRequest("/api/users/register", { username, email, password });
 };
 
 // Login User
 export const loginUser = (email: string, password: string) => {
-  return postRequest('/api/users/login', { email, password });
+  return postRequest("/api/users/login", { email, password });
 };
