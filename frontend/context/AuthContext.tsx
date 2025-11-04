@@ -2,9 +2,8 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// Define your API base URL
-// IMPORTANT: Ensure this matches your backend server URL
-const API_URL = 'http://localhost:5000/api';
+// Define your API base URL from Vite env
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
 
 // Define the shape of the User object returned by your backend
 export interface User {
@@ -35,7 +34,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Set axios baseURL once
+  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
   useEffect(() => {
+    console.log('Auth API base:', axios.defaults.baseURL, 'API_URL:', API_URL);
     const initializeAuth = async () => {
       if (token) {
         try {

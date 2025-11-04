@@ -1,10 +1,11 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.API_KEY;
+// In Vite, env vars must be prefixed with VITE_ and accessed via import.meta.env
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
 
 if (!API_KEY) {
-  throw new Error("API_KEY environment variable not set");
+  throw new Error("VITE_GEMINI_API_KEY environment variable not set");
 }
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });

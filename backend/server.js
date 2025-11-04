@@ -8,27 +8,25 @@ const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
-// ✅ CORS setup for Render deployment
-app.use(
-  cors({
-    origin: [
-      "https://skin-frontend6.onrender.com", // your Render frontend URL
-      "http://localhost:5173"               // local dev frontend
-    ],
-    credentials: true,
-  })
-);
+// ✅ CORS setup (allow local dev + deployed frontend)
+const corsOptions = {
+  // Reflect the request origin if it matches any of these (supports 3000, 5173, etc.)
+  origin: [/^http:\/\/localhost:\d+$/, "https://skin-frontend6.onrender.com"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
+};
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
 // ✅ Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
+    const { host, name } = mongoose.connection;
+    console.log(`✅ MongoDB Connected: ${host}/${name}`);
   })
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err.message);

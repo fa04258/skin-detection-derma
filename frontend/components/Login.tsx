@@ -31,9 +31,8 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ onToggleAuthMode }) => 
       }
       // On successful login, the user state is set in context, and App.tsx will handle the redirect.
     } catch (err) {
-      // This catch block might not be strictly necessary if login handles its own errors
-      // but good practice for any unhandled rejections.
-      setError("An unexpected error occurred during login.");
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred during login.';
+      setError(message);
       console.error("Login component error:", err);
     } finally {
       setIsSubmitting(false); // Always reset submitting state

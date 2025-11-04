@@ -33,10 +33,10 @@ router.post("/login", async (req, res) => {
 
   try {
     let user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: "Invalid Email" });
+    if (!user) return res.status(400).json({ msg: "Your credentials do not match the registered credentials." });
 
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid Password" });
+    if (!isMatch) return res.status(400).json({ msg: "Your credentials do not match the registered credentials." });
 
     res.json({
       msg: "Login success",
