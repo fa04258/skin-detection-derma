@@ -1,38 +1,49 @@
-require("dotenv").config();
+require("dotenv").config(); // Load environment variables
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
 const userRoutes = require("./routes/userRoutes");
+
 const app = express();
 
-// ✅ Fixed CORS for Render
-const allowedOrigins = [
-  "https://skin-frontend4.onrender.com",
-  "http://localhost:5173"
-];
-
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST"],
-  credentials: true 
-}));
+// ✅ CORS setup for Render deployment
+app.use(
+  cors({
+    origin: [
+      "https://skin-frontend6.onrender.com", // your Render frontend URL
+      "http://localhost:5173"               // local dev frontend
+    ],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
-// DB Connect
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log("✅ MongoDB Connected"))
-.catch(err => console.error("❌ DB Error", err));
+// ✅ Connect to MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log(`✅ MongoDB Connected: ${mongoose.connection.host}`);
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
+  });
 
-// Routes
+// ✅ Default Route
 app.get("/", (req, res) => {
-  res.send("🩺 Backend Running...");
+  res.send("🩺 DERM-AI Backend API Running...");
 });
+
+// ✅ API Routes
 app.use("/api/users", userRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
