@@ -1,0 +1,8 @@
+/* Global background image for the app */
+body {
+  background-image: url('https://png.pngtree.com/background/20210711/original/pngtree-simple-skin-care-cosmetics-promotion-picture-image_1097040.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
